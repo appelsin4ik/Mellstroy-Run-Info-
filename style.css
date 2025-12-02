@@ -1,0 +1,1615 @@
+/* =======================================================
+   🎮 GENERAL LAYOUT
+   ======================================================= */
+body {
+  margin: 0;
+  background-color: #001a33;
+  flex-direction: column;
+  color: #fff;
+  font-family: "Press Start 2P", monospace;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: auto;           /* allow scroll only vertically */
+  scroll-behavior: smooth;    /* smooth scrolling */
+  padding-bottom: 50px;       /* adds smooth extra scroll space */
+}
+
+#menu {
+  position: fixed; /* use fixed so it always fills viewport */
+  inset: 0;        /* same as top:0,left:0,right:0,bottom:0 */
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #003366 0%, #000a1a 100%);
+  display: flex;
+  justify-content: center;   /* center vertically */
+  align-items: center;       /* center horizontally */
+  text-align: center;
+  padding: 24px;             /* small safety padding so content never kisses the edges */
+  box-sizing: border-box;
+  overflow: hidden;          /* IMPORTANT: no scroll in the menu */
+}
+
+/* The block that holds logo + input + button */
+.menuContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: top center;
+  transform: scale(1);
+  max-width: 90vw;           /* don't explode horizontally on narrow laptops */
+}
+
+#logoWrapper {
+  position: relative;
+  margin-bottom: 24px;
+  display: inline-block;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+#playBtnWrapper {
+  margin-bottom: 0;
+}
+
+/* =======================================================
+   🎨 MENU ELEMENTS
+   ======================================================= */
+#title {
+  font-size: 32px;
+  color: #66ccff;
+  text-shadow: 0 0 10px #0099ff;
+  margin-bottom: 40px;
+}
+
+#playBtn {
+  font-size: 20px;
+  margin-bottom: 0;
+  padding: 12px 30px;
+  border: none;
+  background-color: #6d36f8;
+  color: white;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #fcfcfc;
+  transition: transform 0.2s;
+}
+#playBtn:hover {
+  transform: scale(1.05);
+}
+
+/* =======================================================
+   🪙 COINS (MENU ANIMATION)
+   ======================================================= */
+.coinGif {
+  position: absolute;
+  width: 25px;
+  margin-top: 50px;
+  top: 39%;
+  left: 50%;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.8);
+  transition: opacity 1s ease, transform 1s ease, filter 1s ease;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px #ffd700)
+          drop-shadow(0 0 20px #ffcc00)
+          drop-shadow(0 0 35px #ff9900)
+          brightness(1.2)
+          saturate(1.4);
+}
+#coinLeft { top: 41%; left: 47%; }
+#coinRight { top: 41%; }
+
+@keyframes coinZoomGlow {
+  0% { transform: translateY(-50%) scale(0.8); opacity: 0; filter: drop-shadow(0 0 0 gold); }
+  30% { opacity: 1; }
+  50% { transform: translateY(-50%) scale(1.4); filter: drop-shadow(0 0 25px gold); }
+  80% { transform: translateY(-50%) scale(1.1); filter: drop-shadow(0 0 12px gold); }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; filter: drop-shadow(0 0 0 gold); }
+}
+.coinPlay { animation: coinZoomGlow 1.7s ease forwards; }
+
+
+
+/* =======================================================
+   🧍 PLAYER NAME INPUT (Retro Arcade Style)
+   ======================================================= */
+
+#inputWrapper { margin-bottom: 16px; }
+
+#playerNameInput {
+  font-family: "Press Start 2P", monospace;
+  font-size: 14px;
+  color: #ccf5ff;
+  background: rgba(0, 15, 40, 0.7);
+  border: 2px solid #33ccff;
+  border-radius: 6px;
+  padding: 10px 14px;
+  width: 260px;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 180, 255, 0.3);
+  transition: all 0.25s ease;
+}
+
+#playerNameInput:focus {
+  border-color: #66ffff;
+  box-shadow:
+    0 0 14px rgba(0, 255, 255, 0.6),
+    inset 0 0 6px rgba(0, 120, 255, 0.3);
+  background: rgba(0, 20, 50, 0.9);
+}
+
+#playerNameInput::placeholder {
+  color: rgba(150, 200, 255, 0.5);
+  text-shadow: none;
+}
+
+#nameError {
+  color: #ff5555;
+  margin-top: 6px;
+  font-size: 11px;
+  text-shadow: 0 0 6px rgba(255, 0, 0, 0.4);
+}
+
+/* =======================================================
+   🕹️ GAME AREA
+   ======================================================= */
+#container {
+  position: relative;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+#gameTitle {
+  color: white;
+  font-family: 'Arial Black', sans-serif;
+  font-size: 32px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 5px black;
+}
+
+canvas {
+  margin-top: 10px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+}
+
+/* =======================================================
+   🧾 HUD & SCORE DISPLAY
+   ======================================================= */
+#hud {
+  width: 770px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-top: 6px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #fff;
+  text-shadow: 0 0 6px #00ccff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+#scoreDisplay,
+#coinDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 1px;
+}
+
+#finalScoreDisplay {
+  font-size: 24px;
+  color: yellow;
+  margin-top: 15px;
+  display: none;
+}
+
+/* =======================================================
+   🔁 RESTART / MENU BUTTONS
+   ======================================================= */
+#gameMenuBtn {
+  display: none;
+  margin-top: 10px;
+}
+
+#restart {
+  margin-top: 15px;
+  padding: 12px 36px;
+  font-size: 14px;
+  font-family: "Press Start 2P", monospace;
+  background: #ff0033;
+  color: #fff;
+  border: 4px solid #ffffff;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 #000000;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.1s ease;
+  display: none;
+}
+#restart:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000000;
+  background: #ff1a4d;
+}
+#restart:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 #000000;
+  background: #e60029;
+}
+
+@keyframes blinkButton {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.5; }
+}
+#restart.blinking { animation: blinkButton 1.2s infinite; }
+
+/* =======================================================
+   🧩 SIDE SECTIONS (SLOTS + LEADERBOARD)
+   ======================================================= */
+#sideContentWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  width: 100%;
+  max-width: 800px;
+  margin-top: 10px;
+}
+
+/* 🎰 SLOT MACHINE — «реальные барабаны» */
+#slotMachineContainer {
+  display: flex;
+  flex-direction: column;
+  order: 1;
+  position: relative;
+  min-height: 250px;
+  padding: 14px 14px 18px;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 320px;
+  border-radius: 8px;
+  margin-top: 25px;
+  text-align: center;
+}
+
+#slotMachineContainer h3 {
+  margin: 4px 0 12px;
+  color: #ffe680;
+  text-shadow: 0 0 6px rgba(255,225,120,0.7), 0 0 18px rgba(255,180,60,0.5);
+}
+
+/* Ссылка внутри h3 выглядит как текст заголовка */
+#slotMachineContainer h3 a:link,
+#slotMachineContainer h3 a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Ховер — по желанию */
+#slotMachineContainer h3 a:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 16px #ffffff);
+}
+
+/* окно с барабанами */
+.slot-window {
+  position: relative;
+  background: linear-gradient(180deg, #0f121a 0%, #07090f 100%);
+  border: 3px solid #2b3147;
+  border-radius: 20px;
+  --border-offset: 17px;   /* было 15px. Увеличиваешь — рамка уходит дальше от дверей */
+  --frame-gap: 13px;       /* постоянный зазор ламп от дверей */
+  padding: var(--border-offset);
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 12px 22px rgba(0,0,0,0.6),
+    inset 0 -8px 14px rgba(0,0,0,0.55),
+    0 2px 12px rgba(0,0,0,0.5);
+}
+
+/* 3 двери (колонки) */
+.doors {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  align-items: stretch;
+}
+
+.door {
+  background-color:#0b0f18;
+  background-image:
+    linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.22)),
+    url("assets/images/mellstroy_game.png");
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;
+  background-size: 70px, 70px;
+  width: 78px;          /* стабильная ширина ячейки */
+  height: 96px;        /* «окно» одного символа */
+  overflow: hidden;
+  border-radius: 6px;
+  margin: 2px auto;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+/* лента коробочек (ячейки) внутри двери */
+.boxes {
+  will-change: transform;
+  transition: transform 1.2s ease-in-out; /* длительность меняем из JS */
+}
+
+/* отдельная ячейка */
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 78px;      /* совпадает с .door width */
+  height: 96px;    /* совпадает с .door height */
+  filter: blur(0);
+  background: linear-gradient(180deg, #0f121a 0%, #07090f 100%); /* перекрывает фон с М */
+}
+
+/* символ — картинка фрукта */
+.box img {
+  width: 56px;      /* аккуратный размер символа */
+  height: 56px;
+  object-fit: contain;
+  image-rendering: auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+/* блик-стекло поверх окна */
+.slot-glass {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+  180deg,
+  rgba(255,255,255,0.03) 6%,
+  rgba(255,255,255,0.015) 36%,
+  transparent 60%
+  );
+  mix-blend-mode: screen;
+}
+
+/* сообщение + кнопка как были, просто мелкие отступы */
+#slotMessage {
+  color: #8fd8ff;
+  margin-top: 12px;
+  min-height: 18px;
+  font-size: 14px;
+  text-shadow: 0 0 6px rgba(0,180,255,0.35);
+}
+
+/* небольшая адаптация ширины слота */
+@media (max-width: 900px) {
+  #slotMachineContainer { max-width: 340px; }
+  .door { width: 84px; height: 100px; }
+  .box  { width: 84px; height: 100px; }
+  .box img { width: 58px; height: 58px; }
+}
+
+
+/* 🏆 LEADERBOARD */
+#leaderboardContainer {
+  display: flex;
+  flex-direction: column;
+  order: 2;
+  min-height: 250px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  margin-top: 25px;
+  text-align: center;
+  text-shadow: 0 0 5px #000;
+}
+#leaderboardContainer h3 {
+  margin: 0 0 10px 0;
+}
+#leaderboardList {
+  list-style: none;
+  padding: 0;
+  font-size: 16px;
+  text-align: left;
+  color: white;
+}
+
+/* =======================================================
+   🔴 SPIN BUTTON (CASINO)
+   ======================================================= */
+
+#spinBtn {
+  margin-left: 50px;
+  margin-right: 50px;
+  font-size: 16px;
+  padding: 8px 15px;
+  border: none;
+  background-color: #ff3333;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.25s ease;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 3px 0 #cc0000, 0 0 8px rgba(255, 80, 80, 0.5);
+}
+#spinBtn:hover:not(:disabled) {
+  background-color: #ff5555;
+  box-shadow: 0 4px 0 #cc0000, 0 0 14px rgba(255, 100, 100, 0.9);
+  transform: scale(1.01);
+}
+#spinBtn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #990000, 0 0 6px rgba(255, 80, 80, 0.5);
+}
+#spinBtn:disabled {
+  background-color: #777;
+  color: #ddd;
+  cursor: not-allowed;
+  box-shadow: 0 3px 0 #555;
+  opacity: 0.6;
+}
+@keyframes reenableGlow {
+  0% { box-shadow: 0 3px 0 #cc0000, 0 0 0 rgba(255,80,80,0); }
+  50% { box-shadow: 0 3px 0 #cc0000, 0 0 16px rgba(255,80,80,1); }
+  100% { box-shadow: 0 3px 0 #cc0000, 0 0 8px rgba(255,80,80,0.6); }
+}
+#spinBtn.reenabled { animation: reenableGlow 0.8s ease; }
+
+
+
+/* =======================================================
+   🛒 SHOP MENU & SKINS
+   ======================================================= */
+#shopOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+  overflow-y: auto;              /* enable vertical scroll */
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+  z-index: 1000;
+}
+#shopContainer {
+  background: #111;
+  border: 3px solid gold;
+  border-radius: 10px;
+  padding: 20px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 0 30px gold;
+  position: relative;
+  animation: scaleIn 0.3s ease;
+  max-height: 90vh;              /* prevent it from going off-screen */
+  overflow-y: auto;              /* inner scroll if content > 90% height */
+  scrollbar-width: thin;         /* compact scrollbar on Firefox */
+}
+#closeShopBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff3333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#closeShopBtn:hover { background: #ff6666; }
+
+#skinsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 skins per row */
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+.skinItem {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  background-color: #222;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s, border-color 0.2s;
+  overflow: hidden;
+}
+.skinItem:hover { transform: scale(1.05); }
+.skinItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.skinItem.locked img {
+  filter: grayscale(100%) brightness(0.4);
+  pointer-events: none;     /* 🔒 can’t click or drag */
+  user-select: none;        /* 🧤 can’t highlight or drag ghost */
+}
+.skinItem.locked::after {
+  content: attr(data-price) "🪙";
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(48, 47, 47, 0.8);
+  padding: 2px 4px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* 🔒 super locked row (second row) */
+.skinItem.superLocked {
+  background: rgba(0,0,0,0.9);
+  position: relative;
+  cursor: not-allowed;
+}
+
+/* 🎯 Score-based locked skins (same style as super locked) */
+.skinItem.scoreLocked {
+  background: rgba(48, 47, 47, 0.8);   /* identical to superLocked */
+  position: relative;
+  cursor: not-allowed;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.skinItem.superLocked img,
+.skinItem.superLocked .skinLabel {
+  opacity: 0;           /* hide real skin */
+  pointer-events: none;     /* 🔒 can’t click or drag */
+  user-select: none;        /* 🧤 can’t highlight or drag ghost */
+}
+
+.skinItem.scoreLocked img {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  object-fit: cover;          /* match normal skins */
+  pointer-events: none;     /* 🔒 can’t click or drag */
+  user-select: none;        /* 🧤 can’t highlight or drag ghost */
+}
+
+.skinItem.scoreLocked::before {
+  content: attr(data-score) " 🏆";
+  position: absolute;
+  bottom: 4px;
+  right: 15px;
+  background: transparent;
+  padding: 2px 4px;
+  font-size: 12px;
+  border-radius: 4px;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 8px #000;     /* subtle readability boost */
+}
+
+.skinItem.scoreLocked::after {
+  content: "🔒";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  color: #fff;
+  text-shadow: 0 0 10px #000;
+  pointer-events: none;
+}
+
+.skinItem.superLocked::after {
+  content: "🔒";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  color: #fff;
+  text-shadow: 0 0 10px #000;
+  pointer-events: none;
+}
+
+.skinItem.selected,
+.skinItem.scoreUnlocked.selected {
+  border-color: gold;
+  box-shadow: 0 0 10px gold;
+}
+.skinLabel {
+  background: rgba(0,0,0,0.7);
+  font-size: 11px;
+  color: gold;
+  padding: 4px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+/* show “Score: xxxx” */
+.skinItem.scoreLocked .skinLabel {
+  position: relative;
+  z-index: 1;
+  color: #ddd;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* Shop popup animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Shop button */
+#shopBtn {
+  font-family: "Press Start 2P", monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #fffbe8;
+  background: linear-gradient(180deg, #ffd83a 0%, #b87300 90%);
+  border: 4px solid #ffffff;
+  border-radius: 0;
+  padding: 14px 36px;
+  margin-top: 15px;
+  cursor: pointer;
+  text-transform: uppercase;
+  position: relative;
+  box-shadow:
+    4px 4px 0 #000,
+    inset 0 -4px 0 #7a4a00,
+    0 0 8px rgba(255, 200, 50, 0.4);
+  text-shadow: 0 2px 0 #7a4a00;
+  transition: all 0.12s ease;
+}
+#shopBtn:hover {
+  background: linear-gradient(180deg, #ffe869 0%, #d69500 90%);
+  transform: translate(2px, 2px);
+  box-shadow:
+    2px 2px 0 #000,
+    inset 0 -4px 0 #8a5500,
+    0 0 10px rgba(255, 210, 60, 0.6);
+}
+#shopBtn:active {
+  transform: translate(3px, 3px);
+  background: linear-gradient(180deg, #f9c800 0%, #8a5500 90%);
+  box-shadow:
+    1px 1px 0 #000,
+    inset 0 -2px 0 #5e3800,
+    0 0 5px rgba(255, 200, 60, 0.3);
+}
+#shopBtn::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: 40%;
+  background: linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0));
+  pointer-events: none;
+}
+#shopBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: linear-gradient(180deg, #a5a5a5 0%, #555555 90%);
+  box-shadow:
+    3px 3px 0 #000,
+    inset 0 -3px 0 #333,
+    0 0 6px rgba(50, 50, 50, 0.4);
+  text-shadow: 0 2px 0 #333;
+  color: #ddd;
+}
+
+/* =======================================================
+   🔔 TOAST NOTIFICATIONS
+   ======================================================= */
+#toastContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 2000;
+}
+
+.toast {
+  background: linear-gradient(180deg, #333 0%, #111 90%);
+  color: #fffbe8;
+  border: 2px solid gold;
+  padding: 12px 18px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  box-shadow: 3px 3px 0 #000, 0 0 10px rgba(255, 215, 0, 0.4);
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateX(30px);
+  animation: toastSlideIn 0.4s forwards, toastFadeOut 0.4s 2.4s forwards;
+}
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastFadeOut {
+  to { opacity: 0; transform: translateX(50px); }
+}
+
+
+/* ---------- HEIGHT BREAKPOINTS FOR LAPTOPS ----------
+   Rule: if viewport height is smaller, scale menuContent down.
+   Goal: PLAY button stays visible at ~700px tall viewports without scroll.
+*/
+
+/* Tier 1: common laptop heights like 800–900px tall
+   Slight shrink + slightly tighter gaps, still vertically centered */
+@media (max-height: 900px) {
+  .menuContent {
+    transform: scale(0.85);
+  }
+
+  #logoWrapper {
+    margin-bottom: 24px;
+  }
+
+  #inputWrapper {
+    margin-bottom: 16px;
+  }
+
+  #playBtnWrapper {
+    margin-bottom: 0;
+  }
+}
+
+/* Tier 2: short viewport (≤700px height)
+   We STOP vertical centering and pin content near the top.
+   We keep scale smaller, and we tighten all vertical gaps. */
+@media (max-height: 700px) {
+  /* push content toward the top, not center */
+  #menu {
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    text-align: center;
+  }
+
+  /* keep the content horizontally centered and stable */
+  .menuContent {
+    transform: scale(0.7);
+    transform-origin: top center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    max-width: 90vw;
+    width: fit-content;
+    margin: 0 auto;
+
+    /* this small margin-bottom just visually balances the block
+       so it doesn't feel glued to the top bar */
+    margin-bottom: 24px;
+
+    margin-top: 200px;  /* moves everything slightly down */
+  }
+
+  #logoWrapper {
+    margin-bottom: 16px;
+  }
+
+  #inputWrapper {
+    margin-bottom: 12px;
+  }
+
+  #playBtnWrapper {
+    margin-bottom: 0;
+  }
+}
+
+/* === 📱 Mobile responsiveness === */
+@media (max-width: 480px) and (orientation: portrait) {
+
+  #logoWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 100px;
+    margin-bottom: 400px;
+    z-index: 1;
+  }
+
+  /* scale only logo (inside inner container) */
+  #logoWrapper .logoScale {
+    transform: scale(2);             /* bigger logo */
+    transform-origin: center top;
+    z-index: 1;
+  }
+
+  #titleImage {
+    width: 100vw;
+    max-width: 450px;
+    height: auto;
+    display: block;
+  }
+
+  .coinGif {
+    position: absolute;
+    width: 26px;       /* independent from logo scale */
+    height: auto;
+    top: 70%;          /* move coins a bit down */
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #coinLeft {
+    top: 73%;
+    left: calc(50% - 31px);
+  }
+
+  #coinRight {
+    top: 73%;
+    right: calc(50% - 1px);
+  }
+
+  #inputWrapper {
+    margin-top: -150px;        /* move name field closer to logo */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+  }
+
+  #playerNameInput {
+    width: 20vw;
+    max-width: 280px;
+    font-size: 12px;
+    z-index: 6;
+  }
+
+  #nameError {
+    margin-top: 4px;           /* small space below input */
+    font-size: 11px;
+    color: #ff5050;
+    text-align: center;
+  }
+
+  #playBtnWrapper {
+    margin-top: 8px;           /* reduced gap between input & button */
+    z-index: 5;
+  }
+
+  #playBtn {
+    width: 25vw;
+    max-width: 260px;
+    font-size: 16px;
+    padding: 10px 0;
+    z-index: 6;
+  }
+}
+
+/* === 📱 Mobile landscape layout with scrolling === */
+@media (max-width: 950px) and (orientation: landscape) {
+
+  html, body {
+    height: 100%;
+    overflow-y: auto;          /* enable smooth scroll */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #menu {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  #logoWrapper {
+    margin-top: -300px;
+    transform: scale(2);     /* slightly bigger logo */
+    transform-origin: center top; /* expand downward, not upward */
+    position: relative;
+  }
+
+  #titleImage {
+    width: 100vw;
+    max-width: 400px;
+    height: auto;
+  }
+
+  .coinGif {
+    position: absolute;
+    width: 12px;
+    height: auto;
+    top: 65%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #coinLeft {
+    top: 25%;
+    left: calc(50% - 16px);
+  }
+
+  #coinRight {
+    top: 25%;
+    right: calc(50% - 60px);
+  }
+
+  #inputWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 220px;
+  }
+
+  #playerNameInput {
+    width: 30vw;
+    max-width: 260px;
+    font-size: 13px;
+  }
+
+  #nameError {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+
+  #playBtn {
+    width: 20vw;
+    margin-top: 10px;
+    font-size: 16px;
+    padding: 10px 0;
+  }
+}
+
+/* === 🎮 GAME SCREEN ORIENTATION LOCK (Landscape only) === */
+@media (orientation: portrait) {
+  body.game-active::before {
+    content: "↻ Для воспроизведения поверните устройство в горизонтальное положение.";
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: #fff;
+    font-family: "Press Start 2P", monospace;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 9999;
+  }
+
+  body.game-active #container {
+    display: none ; /* hide game canvas in portrait */
+  }
+}
+
+@media (orientation: landscape) {
+  body.game-active::before {
+    display: none;
+  }
+
+  body.game-active #container {
+    display: flex ; /* show game in landscape */
+  }
+}
+
+
+/* === 🎮 RESPONSIVE GAME SCREEN (Landscape) === */
+@media (max-width: 900px) and (orientation: landscape) {
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background-attachment: fixed;
+    background-color: #001a33;
+  }
+
+  #menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    background-color: #000a1a; /* solid cover during fade */
+    pointer-events: auto;      /* clickable until hidden */
+    transition: opacity 1s ease; /* smooth fade already present in JS */
+  }
+
+  /* 🎯 Prevent the in-game title (#gameTitle) from showing while the menu fades */
+  #menu:not([style*="display: none"]) ~ #container #gameTitle {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* When fading out (opacity→0), hide the content to prevent ghosting */
+  #menu[style*="opacity: 0"] * {
+    pointer-events: none;
+  }
+
+  #container {
+    z-index: 1;
+  }
+
+  #container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    background: transparent;
+  }
+
+  /* ✅ Only zoom-out when menu is hidden (game active) */
+  #menu[style*="display: none"] + #container {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+
+  /* === GAME CANVAS === */
+  #game {
+    width: 95vw;
+    max-width: 900px;
+    height: 90vh;
+    max-height: 90vh;
+    border: none;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* === HUD AREA === */
+  #hud {
+    width: 95vw;
+    max-width: 900px;
+    margin-top: 2vh;
+    display: flex;
+    flex-direction: row;        /* ✅ items next to each other */
+    align-items: center;
+    font-size: calc(1.2vw + 8px);
+    padding: 5px;                 /* ✅ remove side padding */
+  }
+
+  /* === HUD ITEMS === */
+  #scoreDisplay {
+    font-size: calc(1.1vw + 6px);
+    background-color: transparent; /* looks cleaner */
+    text-align: left;
+    margin: 5px;
+  }
+
+  #finalScoreDisplay {
+    display: none;  /* optional: hide duplicate when not needed */
+  }
+
+  .coinContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .coinContainer img {
+    width: calc(1.5vw + 10px);
+    height: auto;
+  }
+
+  #restartBtn,
+  #backBtn {
+    font-size: calc(1vw + 6px);
+    margin-top: 0.5vh;
+    padding: calc(0.3vw + 4px) calc(1vw + 6px);
+  }
+}
+
+#menu:not([style*="display: none"]) ~ #container #shopBtn {
+  display: none !important;
+}
+
+/* === fixed-position side banners (aligned & height-locked) === */
+.side-banner {
+  position: fixed;                     /* fixed in viewport */
+  top: 123px;                            /* move higher or lower (0–100%) */
+  width: 260px;                        /* banner width */
+  height: 300px;                       /* fixed vertical size */
+  display: none;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* left banner – aligns next to game field */
+.side-banner-left {
+  left: calc(50% - 770px / 2 - 260px - 20px); /* 770px = your game width, 20px padding */
+}
+
+/* right banner – aligns next to game field */
+.side-banner-right {
+  right: calc(50% - 770px / 2 - 260px - 20px);
+}
+
+.light-banner {
+  position: relative;
+  width: 200px;
+  height: 280px; /* fixed height */
+  top: 40%;
+  transform: translateY(-50%);
+  position: absolute;
+  background: radial-gradient(circle at center, #030314 0%, #000 80%);
+  border: 3px solid #00aaff;
+  box-shadow:
+    0 0 20px #00aaff,
+    inset 0 0 30px #0077ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  animation: borderPulse 3s infinite ease-in-out;
+}
+
+.light-banner {
+  animation: borderPulse 3s infinite ease-in-out;
+}
+
+/* === neon text refined === */
+.neon-text {
+  font-family: 'VT323', monospace;       /* true pixel-style font */
+  font-size: 36px;                       /* larger */
+  color: transparent;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* glowing layer */
+.neon-text::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #bb00ff;
+  text-shadow:
+    0 0 8px #bb00ff,
+    0 0 16px #bb00ff,
+    0 0 32px #ff33ff,
+    0 0 48px #ff66ff;
+  opacity: 0;
+  animation: letterGlow 12s linear infinite;
+}
+
+/* link icon styling */
+.banner-link {
+  position: absolute;
+  top: calc(50% + 60px);       /* places below "GAME" */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: showLink 12s linear infinite;
+  pointer-events: auto;
+}
+
+/* arrows around the logo */
+.banner-link::before,
+.banner-link::after {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'VT323', monospace;
+  font-size: 22px;
+  color: transparent;                       /* gradient instead of solid */
+  background: linear-gradient(90deg, #ff00ff, #ffffff, #ff00ff);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  animation:
+    fadeInArrows 1.5s ease forwards,        /* fade in exactly with logo */
+    flowToCenter 0.5s linear infinite;      /* fast flowing gradient */
+  animation-delay: 2.8s, 2.8s;              /* sync with logo start */
+}
+
+.banner-link::before {
+  content: '>>>';
+  left: -40px;                              /* distance from image */
+  animation-delay: 3s;
+}
+
+.banner-link::after {
+  content: '<<<';
+  right: -40px;
+  animation-delay: 3s;
+}
+
+/* === logo image animation === */
+.banner-link img {
+  width: 60px;
+  height: auto;
+  filter: drop-shadow(0 0 8px #ff66ff);
+  transition: transform 0.3s ease, filter 0.3s ease;
+  animation:
+    fadeInLogo 1.5s ease forwards,     /* smooth appear */
+    pulseLogo 3s ease-in-out infinite; /* slow breathing */
+  animation-delay: 2.8s, 2.8s;         /* both start when logo becomes visible */
+}
+
+
+.banner-link img:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 16px #ffffff);
+}
+
+/* smooth fade-in */
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(10px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* gentle scale up/down pulse */
+@keyframes pulseLogo {
+  0%,100% { transform: scale(1);    }
+  50%     { transform: scale(1.08);  }
+}
+
+
+@keyframes showLink {
+  0%,27% { opacity: 0; }
+  28%,100% { opacity: 1; }
+}
+
+/* smooth fade-in of arrows */
+@keyframes fadeInArrows {
+  from { opacity: 0; transform: translateY(-50%) scale(0.8); }
+  to   { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+/* fast moving gradient across text */
+@keyframes flowToCenter {
+  0%   { background-position: 200% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* Neon border glow pulsing */
+@keyframes borderPulse {
+  0%,100% { box-shadow: 0 0 20px #00aaff, inset 0 0 30px #0077ff; }
+  50% { box-shadow: 0 0 40px #33ddff, inset 0 0 60px #00aaff; }
+}
+
+/* faster reveal (first 3 s) → then 9 s steady pulse */
+@keyframes letterGlow {
+  0%,3%   { content: 'M'; opacity: 1; }
+  3.1%,6% { content: 'ME'; }
+  6.1%,9% { content: 'MEL'; }
+  9.1%,12%{ content: 'MELL'; }
+  12.1%,15%{ content: 'MELLS'; }
+  15.1%,18%{ content: 'MELLST'; }
+  18.1%,21%{ content: 'MELLSTR'; }
+  21.1%,24%{ content: 'MELLSTRO'; }
+  24.1%,27%{ content: 'MELLSTROY GAME'; opacity: 1; }
+  27.1%,85%{ content: 'MELLSTROY GAME'; opacity: 1; filter: brightness(1.3); }
+  86%,88% { opacity: 0.7; filter: brightness(0.8); }
+  89%,91% { opacity: 1;   filter: brightness(1.3); }
+  92%,94% { opacity: 0.7; }
+  95%,100%{ opacity: 1; filter: brightness(1.3); }
+}
+
+
+@media (max-width: 1200px) {
+  .side-banner {
+    display: none !important;
+  }
+  .tiktok-under-banner.left,
+  .tiktok-under-banner.right {
+    display: none !important;
+  }
+}
+
+/* ================================
+   💡 SLOT LAMP RING (добавка)
+   ================================= */
+
+/* двери должны быть ниже ламп, но выше фона */
+.slot-window .doors{
+  position: relative;
+  z-index: 1;
+}
+
+/* стекло — поверх всего */
+.slot-window .slot-glass{
+  z-index: 3;
+}
+
+/* Рамка ламп поверх .doors, но под стеклом */
+.slot-window .bulb-frame{
+  position:absolute;
+  inset: calc(var(--border-offset) - var(--frame-gap));
+  z-index:4;
+  pointer-events:none;
+}
+
+/* Стороны */
+.slot-window .bulb-frame .side{
+  position:absolute;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:0;
+}
+
+.slot-window .bulb-frame .top{
+  top:0; left:0; right:0; height:12px;
+  padding:0 12px;                 /* было 0 10px */
+}
+.slot-window .bulb-frame .bottom{
+  bottom:0; left:0; right:0; height:12px;
+  padding:0 12px;                 /* было 0 10px */
+}
+.slot-window .bulb-frame .left{
+  top:0; bottom:0; left:0; width:12px;
+  flex-direction:column; padding:12px 0;   /* было 10px 0 */
+}
+.slot-window .bulb-frame .right{
+  top:0; bottom:0; right:0; width:12px;
+  flex-direction:column; padding:12px 0;   /* было 10px 0 */
+}
+
+/* Одна лампа — используем твой текущий стиль */
+.slot-window .bulb{
+  width:12px; height:12px; border-radius:50%;
+  background: radial-gradient(circle at 35% 35%, #2e3f49 0%, #0b1720 60%, #000 100%);
+  box-shadow: 0 0 1px rgba(0,0,0,.8), inset 0 0 6px rgba(0,0,0,.6);
+  opacity:.85; transition:filter .12s, box-shadow .12s, background .12s, opacity .12s;
+}
+
+/* тёплая ламповая «включена» */
+.slot-window .bulb.on{
+  background: radial-gradient(circle at 35% 35%, #fff6a0 0%, #ffd24d 45%, #ffb300 70%, #a86a00 100%);
+  box-shadow:
+    0 0 2px rgba(255,200,0,.6),
+    0 0 12px rgba(255,200,0,.65),
+    0 0 22px rgba(255,170,0,.45);
+  opacity: 1;
+}
+
+/* мягкий «ожидание» пульс без мигания-рубильника */
+/* idlePulse — основной */
+.slot-window .bulb.idlePulse{
+  animation: idlePulse 1.8s ease-in-out infinite;
+  opacity: .75;
+}
+
+/* ✅ основной keyframes */
+@keyframes idlePulse {
+  0% {
+    filter: brightness(0.96);
+    /* небольшой мягкий свет */
+    box-shadow:
+      0 0 5px rgba(255, 200, 0, .24),
+      inset 0 0 1px rgba(0, 0, 0, .55);
+  }
+  50% {
+    /* чуть ярче, но без перегиба */
+    filter: brightness(1.6);
+    /* контролируемый радиус, чтобы лампы не сливались */
+    box-shadow:
+      0 0 7px rgba(255, 210, 0, .40),
+      inset 0 0 1px rgba(0, 0, 0, .55);
+  }
+  100% {
+    filter: brightness(0.96);
+    box-shadow:
+      0 0 5px rgba(255, 200, 0, .24),
+      inset 0 0 1px rgba(0, 0, 0, .55);
+  }
+}
+
+/* важное: .doors под лампами, стекло над лампами */
+.slot-window .doors{ position:relative; z-index:1; }
+.slot-window .slot-glass{ z-index:3; }
+
+
+/* 📱 Adjust shop position on small screens */
+@media (max-height: 750px) {
+  #shopContainer {
+    margin-top: 40px;     /* move shop a bit lower */
+  }
+}
+
+@media (max-height: 600px) {
+  #shopContainer {
+    margin-top: 60px;     /* move even lower on very small phones */
+  }
+}
+
+/* =========================================
+   🎵 TikTok neon mini-banners under side banners
+   ========================================= */
+.tiktok-under-banner {
+  position: fixed;
+  width: 180px;
+  height: 60px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 70;
+}
+
+.tiktok-under-banner.left {
+  left: calc(50% - 770px / 2 - 260px + 20px); /* align with left banner */
+  top: 400px;
+}
+
+.tiktok-under-banner.right {
+  right: calc(50% - 770px / 2 - 260px + 20px); /* align with right banner */
+  top: 400px;
+}
+
+.tiktok-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 140px;
+  height: 35px;
+  border: 2px solid #ff006e;
+  border-radius: 12px;
+  background: radial-gradient(circle at top left, rgba(255, 0, 110, 0.2), rgba(0, 0, 0, 0.6));
+  box-shadow: 0 0 18px rgba(255, 0, 110, 0.6);
+  padding: 6px 10px;
+  transition: all 0.25s ease;
+}
+
+.tiktok-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 0, 110, 0.9);
+}
+
+.tiktok-icon {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 0 6px #ff3388);
+}
+
+.tiktok-label {
+  color: #fff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+}
+
+/* ✨ Visible only in-game */
+body.game-active .tiktok-under-banner {
+  display: flex;
+}
+
+.tiktok-under-banner a {
+  text-decoration: none; /* removes underline */
+  color: inherit;        /* ensures white text stays white */
+}
+
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(255, 0, 110, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(255, 0, 110, 0.9); }
+}
+
+.tiktok-box {
+  animation: neonPulse 2s infinite ease-in-out;
+}
+
+/* =========================================
+   📱 TikTok banner for touch devices
+   ========================================= */
+/* 📱 TikTok button anchored under the game area */
+.tiktok-under-banner.center-touch {
+  position: absolute;
+  display: none;
+  justify-content: center;
+  margin-top: 300px;         /* small space under leaderboard */
+  margin-bottom: 10px;      /* soft padding to page bottom */
+  margin-left: -120px;
+}
+
+/* Same look as others */
+/* Same box design */
+.tiktok-under-banner.center-touch .tiktok-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 2px solid #ff006e;
+  border-radius: 12px;
+  background: radial-gradient(circle at top left, rgba(255, 0, 110, 0.2), rgba(0, 0, 0, 0.6));
+  box-shadow: 0 0 18px rgba(255, 0, 110, 0.6);
+  padding: 6px 10px;
+  animation: neonPulse 2s infinite ease-in-out;
+}
+
+.tiktok-under-banner.center-touch .tiktok-label {
+  color: #fff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+}
+
+/* Show this only on touch devices during game */
+/* ===============================
+   💡 TikTok visibility control
+   =============================== */
+
+/* Default — hide all */
+.tiktok-under-banner {
+  display: none;
+}
+
+/* 👇 On DESKTOP (mouse devices): show side ones only */
+@media (pointer: fine) {
+  body.game-active .tiktok-under-banner.left,
+  body.game-active .tiktok-under-banner.right {
+    display: flex;
+  }
+
+  body.game-active .tiktok-under-banner.center-touch {
+    display: none; /* hidden on desktop */
+  }
+}
+
+/* 👇 On TOUCH devices (phones/tablets): show center one only */
+@media (pointer: coarse) {
+  body.game-active .tiktok-under-banner.center-touch {
+    display: flex;
+  }
+
+  body.game-active .tiktok-under-banner.left,
+  body.game-active .tiktok-under-banner.right {
+    display: none; /* hide side ones */
+  }
+
+  body {
+    padding-bottom: 70px; /* ensures bottom TikTok button doesn't overlap anything */
+  }
+
+}
+
