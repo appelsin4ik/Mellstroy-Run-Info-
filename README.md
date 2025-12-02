@@ -1,4 +1,4 @@
-# 🎮 Mellstroy Run
+# 🎮 Mellstroy Run (https://www.mellstroy-run.com)
 
 **Mellstroy Run** is a fast-paced browser arcade game that mixes an endless runner with a slot machine mini-game and an online leaderboard.
 
